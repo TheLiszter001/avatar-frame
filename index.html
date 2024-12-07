@@ -3,48 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avatar Frame</title>
+    <title>Avatar Uploader</title>
 </head>
 <body>
-    <h1 style="text-align: center;">Tạo avatar với khung</h1>
-    <div style="text-align: center; margin: 20px;">
-        <input type="file" id="upload" accept="image/*">
-        <button id="generate" style="margin-top: 10px;">Tạo ảnh</button>
-    </div>
-    <div id="result" style="text-align: center; margin-top: 20px;"></div>
+    <h1>Tạo Avatar</h1>
+    <input type="file" id="upload" accept="image/*"><br><br>
+    <canvas id="canvas" width="500" height="500" style="border:1px solid #000;"></canvas><br><br>
+    <button id="download">Tải về</button>
 
     <script>
-        document.getElementById('generate').addEventListener('click', async () => {
-            const fileInput = document.getElementById('upload');
-            if (fileInput.files.length === 0) {
-                alert("Hãy chọn một ảnh!");
-                return;
+        const upload = document.getElementById('upload');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const download = document.getElementById('download');
+
+        // Load khung avatar
+        const frame = new Image();
+        frame.src = 'frame.png'; // Đường dẫn đến khung avatar của bạn
+        frame.onload = () => ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+
+        upload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Vẽ ảnh người dùng
+                    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên trên
+                };
             }
+        });
 
-            const file = fileInput.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', 'vjff4fkh'); // Upload preset từ Cloudinary
-            const cloudName = 'dlqpqscsg'; // Tên Cloudinary của bạn
-
-            try {
-                // Upload ảnh người dùng lên Cloudinary
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-
-                // Lấy URL ảnh đã upload
-                const userImageUrl = data.secure_url;
-
-                // URL Overlay lồng ghép khung
-                const frameImageUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_60bd528b94502e0e7741_kvxhc7,w_500,h_500,c_fit/${userImageUrl}`;
-                document.getElementById('result').innerHTML = `<img src="${frameImageUrl}" alt="Framed Image" style="max-width: 100%; border: 1px solid #ddd; border-radius: 10px;">`;
-            } catch (error) {
-                console.error("Lỗi khi tải ảnh:", error);
-                alert("Đã xảy ra lỗi! Vui lòng thử lại.");
-            }
+        download.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'avatar.png';
+            link.href = canvas.toDataURL();
+            link.click();
         });
     </script>
 </body>
