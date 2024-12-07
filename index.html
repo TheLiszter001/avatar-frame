@@ -23,18 +23,17 @@
         frame.onload = () => ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
 
         upload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Vẽ ảnh người dùng
-                    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên trên
-                };
-            }
-        });
-
+    const file = event.target.files[0];
+    if (file) {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Vẽ ảnh người dùng
+            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên trên
+        };
+    }
+});
         download.addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = 'avatar.png';
