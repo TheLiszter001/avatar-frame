@@ -50,7 +50,7 @@
                 console.error('Không có ảnh được chọn.');
             }
         });
-
+ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Vẽ không scale
         download.addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = 'avatar.png';
