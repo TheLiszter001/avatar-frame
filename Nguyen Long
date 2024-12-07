@@ -1,48 +1,85 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ghép Ảnh Vào Khung</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Avatar</title>
 </head>
 <body>
-    <h1>Ghép Ảnh Vào Khung</h1>
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="imageUpload" accept="image/*" required>
-        <button type="submit">Tải Lên</button>
-    </form>
-    <div id="result"></div>
+    <h1>Tạo Avatar</h1>
+    <p>Chọn ảnh để tạo avatar với khung:</p>
+    <input type="file" id="upload" accept="image/jpeg, image/png"><br><br>
+    <canvas id="canvas" width="500" height="500" style="border:1px solid #000;"></canvas><br><br>
+    <button id="download">Tải về</button>
+
     <script>
-        document.getElementById('uploadForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const file = document.getElementById('imageUpload').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const frame = new Image();
-                        frame.src = 'frame.png'; // Đường dẫn đến file khung PNG của bạn
-                        frame.onload = function() {
-                            canvas.width = frame.width;
-                            canvas.height = frame.height;
-                            ctx.drawImage(img, 0, 0, frame.width, frame.height);
-                            ctx.drawImage(frame, 0, 0);
-                            const result = canvas.toDataURL('image/png');
-                            document.getElementById('result').innerHTML = `<img src="${result}" alt="Ảnh đã ghép">`;
-                            const downloadLink = document.createElement('a');
-                            downloadLink.href = result;
-                            downloadLink.download = 'image_with_frame.png';
-                            downloadLink.textContent = 'Tải ảnh đã ghép';
-                            document.getElementById('result').appendChild(downloadLink);
-                        };
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
+        const upload = document.getElementById('upload');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const download = document.getElementById('download');
+
+        // Load khung avatar
+        const frame = new Image();
+        frame.src = 'frame.png'; // Đường dẫn tệp khung avatar
+        frame.onload = () => {
+            console.log('Khung avatar đã được tải thành công.');
+            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên canvas
+        };
+
+        upload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                console.error('Không có file nào được chọn.');
+                return;
             }
+
+            console.log('File ảnh đã chọn:', file.name);
+
+            if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                alert('Chỉ hỗ trợ file ảnh định dạng JPEG hoặc PNG!');
+                return;
+            }
+
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                img.src = e.target.result;
+                img.onload = () => {
+                    console.log('Ảnh đã tải xong.');
+                    // Xóa canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Tính toán để ảnh vừa với canvas mà không bị méo
+                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                    const x = (canvas.width - img.width * scale) / 2;
+                    const y = (canvas.height - img.height * scale) / 2;
+
+                    // Vẽ ảnh vào canvas
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                    // Vẽ khung avatar lên trên
+                    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+                };
+
+                img.onerror = () => {
+                    console.error('Không thể tải ảnh từ FileReader.');
+                };
+            };
+
+            reader.onerror = () => {
+                console.error('Không thể đọc file ảnh.');
+            };
+
+            reader.readAsDataURL(file); // Đọc file ảnh dưới dạng URL
+        });
+
+        download.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'avatar.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         });
     </script>
 </body>
 </html>
+
