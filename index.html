@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Frame</title>
+</head>
+<body>
+    <h1 style="text-align: center;">Tạo avatar với khung</h1>
+    <div style="text-align: center; margin: 20px;">
+        <input type="file" id="upload" accept="image/*">
+        <button id="generate" style="margin-top: 10px;">Tạo ảnh</button>
+    </div>
+    <div id="result" style="text-align: center; margin-top: 20px;"></div>
+
+    <script>
+        document.getElementById('generate').addEventListener('click', async () => {
+            const fileInput = document.getElementById('upload');
+            if (fileInput.files.length === 0) {
+                alert("Hãy chọn một ảnh!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'vjff4fkh'); // Upload preset từ Cloudinary
+            const cloudName = 'dlqpqscsg'; // Tên Cloudinary của bạn
+
+            try {
+                // Upload ảnh người dùng lên Cloudinary
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                // Lấy URL ảnh đã upload
+                const userImageUrl = data.secure_url;
+
+                // URL Overlay lồng ghép khung
+                const frameImageUrl = `https://res.cloudinary.com/${cloudName}/image/upload/l_60bd528b94502e0e7741_kvxhc7,w_500,h_500,c_fit/${userImageUrl}`;
+                document.getElementById('result').innerHTML = `<img src="${frameImageUrl}" alt="Framed Image" style="max-width: 100%; border: 1px solid #ddd; border-radius: 10px;">`;
+            } catch (error) {
+                console.error("Lỗi khi tải ảnh:", error);
+                alert("Đã xảy ra lỗi! Vui lòng thử lại.");
+            }
+        });
+    </script>
+</body>
+</html>
