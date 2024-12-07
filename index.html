@@ -19,7 +19,7 @@
 
         // Load khung avatar
         const frame = new Image();
-        frame.src = 'frame.png'; // Đường dẫn đến khung avatar của bạn
+        frame.src = 'frame.png'; // Đường dẫn đến khung avatar
         frame.onload = () => ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
 
         upload.addEventListener('change', (event) => {
@@ -28,7 +28,7 @@
                 const img = new Image();
                 img.src = URL.createObjectURL(file);
                 img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Vẽ ảnh người dùng
                     ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên trên
                 };
