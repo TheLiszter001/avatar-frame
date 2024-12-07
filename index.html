@@ -1,61 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo Avatar</title>
+    <title>Ghép Ảnh Vào Khung</title>
 </head>
 <body>
-    <h1>Tạo Avatar</h1>
-    <input type="file" id="upload" accept="image/*"><br><br>
-    <canvas id="canvas" width="500" height="500" style="border:1px solid #000;"></canvas><br><br>
-    <button id="download">Tải về</button>
-
+    <h1>Ghép Ảnh Vào Khung</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="imageUpload" accept="image/*" required>
+        <button type="submit">Tải Lên</button>
+    </form>
+    <div id="result"></div>
     <script>
-        const upload = document.getElementById('upload');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const download = document.getElementById('download');
-
-        // Khung avatar (tải từ Cloudinary)
-        const frame = new Image();
-        frame.src = 'https://res.cloudinary.com/dlqpqscsg/image/upload/v1733571144/60bd528b94502e0e7741_kvxhc7.jpg'; // Thay đổi với URL khung của bạn
-        frame.onload = () => {
-            console.log('Khung avatar đã được tải.');
-            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên canvas
-        };
-
-        upload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const file = document.getElementById('imageUpload').files[0];
             if (file) {
-                console.log('File ảnh đã chọn:', file.name);
-                const img = new Image();
-                img.src = URL.createObjectURL(file); // Tạo URL cho ảnh
-                img.onload = () => {
-                    console.log('Ảnh đã tải xong.');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
-                    // Vẽ ảnh người dùng
-                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-                    const x = (canvas.width - img.width * scale) / 2;
-                    const y = (canvas.height - img.height * scale) / 2;
-                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-                    // Vẽ khung lên trên
-                    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const frame = new Image();
+                        frame.src = 'frame.png'; // Đường dẫn đến file khung PNG của bạn
+                        frame.onload = function() {
+                            canvas.width = frame.width;
+                            canvas.height = frame.height;
+                            ctx.drawImage(img, 0, 0, frame.width, frame.height);
+                            ctx.drawImage(frame, 0, 0);
+                            const result = canvas.toDataURL('image/png');
+                            document.getElementById('result').innerHTML = `<img src="${result}" alt="Ảnh đã ghép">`;
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = result;
+                            downloadLink.download = 'image_with_frame.png';
+                            downloadLink.textContent = 'Tải ảnh đã ghép';
+                            document.getElementById('result').appendChild(downloadLink);
+                        };
+                    };
+                    img.src = e.target.result;
                 };
-
-                img.onerror = () => {
-                    console.error('Không thể tải ảnh.');
-                };
-            } else {
-                console.error('Không có ảnh được chọn.');
+                reader.readAsDataURL(file);
             }
-        });
-
-        download.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'avatar.png';
-            link.href = canvas.toDataURL();
-            link.click();
         });
     </script>
 </body>
