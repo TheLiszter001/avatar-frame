@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avatar Uploader</title>
+    <title>Tạo Avatar</title>
 </head>
 <body>
     <h1>Tạo Avatar</h1>
@@ -20,20 +20,30 @@
         // Load khung avatar
         const frame = new Image();
         frame.src = 'frame.png'; // Đường dẫn đến khung avatar
-        frame.onload = () => ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
-
-        upload.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Vẽ ảnh người dùng
-            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên trên
+        frame.onload = () => {
+            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên canvas
         };
-    }
-});
+
+        // Khi người dùng tải ảnh lên
+        upload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const img = new Image();
+                img.src = URL.createObjectURL(file); // Tạo URL cho ảnh
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
+                    // Vẽ ảnh lên canvas, tự động căn chỉnh ảnh vào giữa khung
+                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                    const x = (canvas.width - img.width * scale) / 2;
+                    const y = (canvas.height - img.height * scale) / 2;
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                    // Vẽ khung lên trên
+                    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+                };
+            }
+        });
+
+        // Khi người dùng tải xuống
         download.addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = 'avatar.png';
