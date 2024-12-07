@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Ghép Ảnh Vào Khung</title>
+</head>
+<body>
+    <h1>Ghép Ảnh Vào Khung</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="imageUpload" accept="image/*" required>
+        <button type="submit">Tải Lên</button>
+    </form>
+    <div id="result"></div>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const file = document.getElementById('imageUpload').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const frame = new Image();
+                        frame.src = 'frame.png'; // Đường dẫn đến file khung PNG của bạn
+                        frame.onload = function() {
+                            canvas.width = frame.width;
+                            canvas.height = frame.height;
+                            ctx.drawImage(img, 0, 0, frame.width, frame.height);
+                            ctx.drawImage(frame, 0, 0);
+                            const result = canvas.toDataURL('image/png');
+                            document.getElementById('result').innerHTML = `<img src="${result}" alt="Ảnh đã ghép">`;
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = result;
+                            downloadLink.download = 'image_with_frame.png';
+                            downloadLink.textContent = 'Tải ảnh đã ghép';
+                            document.getElementById('result').appendChild(downloadLink);
+                        };
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
