@@ -19,10 +19,10 @@
 
         // Load khung avatar
         const frame = new Image();
-        frame.src = 'frame.png'; // Đường dẫn đến khung avatar
+        frame.src = 'frame.png'; // Đường dẫn khung
         frame.onload = () => {
-            console.log('Khung avatar đã được tải.');
-            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height); // Vẽ khung lên canvas
+            console.log('Khung avatar đã tải thành công.');
+            ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
         };
 
         upload.addEventListener('change', (event) => {
@@ -34,12 +34,12 @@
                 img.onload = () => {
                     console.log('Ảnh đã tải xong.');
                     ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
-                    // Vẽ ảnh người dùng
+                    console.log('Vẽ ảnh lên canvas...');
+                    // Scale ảnh
                     const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
                     const x = (canvas.width - img.width * scale) / 2;
                     const y = (canvas.height - img.height * scale) / 2;
                     ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-                    // Vẽ khung lên trên
                     ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
                 };
 
